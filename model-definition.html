@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+	<head>
+		<meta charset="UTF-8">
+		<title>Mongoose - デベロッパーズガイド 日本語訳</title>
+		<style>
+			* {
+			  padding: 0;
+			  margin: 0;
+			  text-shadow: 0 2px 5px #AAA;
+			  color: #333;
+			  list-style: none;
+			}
+			a {
+			  color: #046;
+			}
+			div#side {
+			  position: fixed;
+			  top: 0px;
+			  left: 0px;
+			  width: 300px;
+			  height: 100%;
+			  padding: 5px 10px;
+			}
+			div#side h2 {
+			  font-size: 1.4em;
+			}
+			div#license p {
+			  width: 200px;
+			  font-size: 0.8em;
+			}
+			div#content-wrap {
+			  position: relative;
+			  top: 0px;
+			  left: 300px;
+			  width: 600px;
+			  padding: 5px 0 0 20px ;
+			}
+			section {
+			  padding: 10px;
+			  margin: 10px 0 0 0;
+			  border: 1px solid #CCC;
+			  border-radius: 10px;
+			  -moz-border-radius: 10px;
+			  -webkit-border-radius: 10px;
+			}
+			section h2 {
+			  border-bottom: 2px solid #AAA;
+			  margin-bottom: 10px;
+			}
+			section ul {
+			  margin: 5px 15px;
+			  font-size: 0.9em;
+			}
+			section ul li {
+			  list-style: circle;
+			}
+
+			code {
+			  color: #633;
+			}
+			pre {
+			  border: 1px solid #CCC;
+			  border-radius: 5px;
+			  padding: 10px;
+			  margin: 5px 0;
+			  background: #333;
+			  box-shadow: inset 0 0 5px #FF0;
+			  color: #FFF;
+			}
+			pre code {
+			  color: #FFF;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="side">
+				<header>
+					<h1>Mongoose - Developers Guide</h1>
+					<h2>Mongoose - デベロッパーズガイド 日本語訳</h2>
+				</header>
+				<nav>
+					<ul>
+						<li><a href="#api">API</a></li>
+						<li><a href="./model-definition.html">Model Definition</a></li>
+						<li><a href="./embedded-document.html">Embedded Document</a></li>
+						<li><a href="./middleware.html">Middleware</a></li>
+						<li><a href="./defaults.html">Defaults</a></li>
+						<li><a href="./indexes.html">Indexes</a></li>
+						<li><a href="./validation.html">Validation</a></li>
+						<li><a href="./virtuals.html">Virtulas</a></li>
+						<li><a href="./getters-setters.html">Getters / Setters</a></li>
+					</ul>
+				</nav>
+				<div id="license"> 
+					<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/2.1/jp/80x15.png" /></a>
+					<p>このページは <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/">Creative Commons 表示 - 非営利 - 継承 2.1 日本 License</a> にもとづいて公開されています。</p>
+				</div>
+			</div>
+			<div id="content-wrap">
+				<div id="content">
+					<article>
+						<h1>Mongoose 1.0</h1>
+						<section>
+							<p>Model は <code>Schema</code> インスタンスを通して <code>mongoose.model</code> を利用して定義されます。</p>
+ 
+<pre><code>mongoose.model('MyModel', mySchema);
+// mySchema is &lt;a Schema&gt;</code></pre> 
+
+							<p><code>mongoose</code> シングルトンから <code>Schema</code> コンストラクタにアクセスすることは容易です。</p>
+ 
+<pre><code>var mongoose = require('mongoose')
+  , Schema = mongoose.Schema;
+ 
+var mySchema = new Schema({
+    // my props
+});</code></pre> 
+ 
+							<p>もし、単一のコネクションを利用したいのであれば、Model は <code>mongoose</code> からアクセスされます。</p>
+ 
+<pre><code>// connect the `mongoose` instance
+mongoose.connect('mongodb://host/db');
+ 
+var BlogPost = mongoose.model('BlogPost');</code></pre> 
+ 
+							<p>また、複数の database/connections を利用したければ、 <code>Connection</code> インスタンスからアクセスされます</p>
+ 
+<pre><code>var db = mongoose.createConnection('mongodb://host/db')
+  , BlogPost = db.model('BlogPost');</code></pre> 
+ 
+							<p><strong>Important</strong> 実際のデータとのやりとりは、<code>mongoose.model</code> や <code>db.model</code> から得た <code>Model</code> で行います。
+							そのオブジェクトは、インスタンス化を行い、 <code>.find()</code> や <code>.findOne()</code> などを呼び出すことができます。
+							schema と実際の model を混同しないようにしてください！</p>
+						</section>
+						<section>
+							<h2>key の定義</h2> 
+ 
+							<p><code>Schema</code> コンストラクタは第一引数としてオブジェクトのスキーマ表現を受けます。
+								もし、keyを後で付け足したくなったときには <code>Schema#add</code> が同じ機能を提供しています。</p>
+ 
+							<p>古いバージョンの mongoose と違い、データタイプの定義がモデル定義の主なパートになっています。
+								スキーマは MongoDB 独自のモノ(例えば、 <code>Schema.ObjectId</code>) に加え、ご存知の (Schema や Number 、 Date などの) JavaScript ネイティブ全てから構成されます。</p>
+							Unlike older versions of mongoose, defining the data types is now a main part
+ 
+<pre><code>var ObjectId = Schema.ObjectId;
+ 
+var PostSchema = new Schema({
+    owner   : ObjectId
+  , title   : String
+  , date    : Date
+});</code></pre> 
+
+　　　　　　　　<h3>document の中の document の定義</h3> 
+ 
+							<p>あるスキーマをフォローする、document の配列を定義するために、スキーマコンストラクタの内部で、配列を値としてください。</p>
+ 
+							<p>例えば、 blogpost の内部に comment のコレクションを持ちたいと考えてください。そして、 subject を casting 、 validation その他モデルによって提供される機能を持たせたいと考えてください。</p>
+ 
+<pre><code>var Comment = new Schema({
+    body  : String
+  , date  : Date
+});
+ 
+var Post = new Schema({
+    title     : String
+  , comments  : [Comment]
+});</code></pre> 
+ 
+							<p>後で、非常に簡単にサブドキュメントとやり取りすることができます。
+								より多くの情報は、この文書の <a href="./embedded-document.html">embedded document</a> の章を参照してください。</p>
+ 
+							<h3>key のカスタムオプションの定義</h3> 
+ 
+							<p>定義した各々の key は、内部的に <code>SchemaType</code> にマップされます。
+								Schema は直接的にやり取りする何かではなく、 どのようなデータをもたせ、どのように振舞うかを Mongoose に記述する方法であることを留めておいてください。</p>
+ 
+							<p><code>SchemaType</code> は validation 、 casting 、 defaults 、その他のオプションの面倒を見てくれます。
+								機能のうちいくつかは、ある <code>SchemaType</code> の専用となっています。例えば、 Numberだけが <code>min</code> 、 <code>max</code> の値をサポートしています。</p>
+						
+							<p>モデルの定義から、直接的にこれらのオプションをカスタマイズしたければ、オブジェクトに対して key を <code>{ type: {Type}, ??}</code> のフォーマットでセットしてください。</p>
+ 
+<pre><code>  var Person = new Schema({
+      title   : { type: String, required: true }
+    , age     : { type: Number, min: 5, max: 20 }
+    , meta    : {
+          likes : [String]
+        , birth : { type: Date, default: Date.now }
+      }
+  });</code></pre> 
+ 
+							<p>これらのオプションは各々の SchemaType で関数として呼び出されます。
+								もし、後でオプションを定義したければ、 <code>path</code> 関数を通して key にアクセスすることが可能です。</p>
+ 
+<pre><code>Person.path('age').max(400);
+ 
+Person.path('meta.birth').set(function (v) {
+  // this is a setter
+});
+ 
+Person.path('title').validate(function (v) {
+  return v.length &gt; 50;
+});</code></pre> 
+ 
+							<p>オプションの中にはん要的なものもあります。 <code>default</code> は <code>Function</code> または値を取ることができます。
+								<code>validate</code> は <code>Function</code> または <code>RegExp</code> を取ることができます。
+								より詳細な情報は、他の章で見ることができます。</p>
+						</section>
+						<section>
+							<h2>key を超えて： Middleware</h2> 
+ 
+							<p>Middleware は特別なユーザの定義する関数で、 <code>Document</code> のインスタンスにおいて、
+								ある native メソッド(<code>init</code> 、 <code>save</code> 、 <code>remove</code>)が呼び出されるときに、透過的に呼び出されます。</p>
+ 
+							<p>document が変更されたときに、そのユーザに対してemailをしたいとしましょう。
+								こんな風に User スキーマに hook を定義します</p>
+ 
+<pre><code>User.pre('save', function (next) {
+  email(this.email, 'Your record has changed');
+  next();
+});</code></pre> 
+ 
+							<p>middleware の仕様についての情報は、 <a href="./middleware.html">middelware</a> で 見ることができます</p>
+						</section>
+					</article>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
