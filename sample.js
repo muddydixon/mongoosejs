@@ -1,33 +1,29 @@
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/test');
 
-var Sample = new mongoose.Schema({
+var SchemaSample = new mongoose.Schema({
 		name: String
 });
-Sample.pre('save',
-					 function(next){
-							 next();
-							 process.nextTick(function(){
-									 setTimeout(function(){
-											 console.log('pre 1');
-									 },1000);
-							 });
-					 });
-Sample.pre('save',
-					 function(next){
-							 console.log('pre 2');
-							 setTimeout(next, 1000);
-					 });
-Sample.pre('save',
-					 function(next){
-							 console.log('pre 3');
-							 setTimeout(next, 1000);
-					 });
-mongoose.model('Sample', Sample); Sample = mongoose.model('Sample');
+var SchemaSample2 = new mongoose.Schema({
+		name: String
+});
+var Sample, Sample2;
 
-new Sample({name: "hoge"}).save(function(err){
-		if(err)
+mongoose.model('Sample2', SchemaSample2); var Sample2 = mongoose.model('Sample2');
+mongoose.model('Sample', SchemaSample); var Sample = mongoose.model('Sample');
+
+SchemaSample.path('name').validate(function(v, fn){
+		Sample2.find({name: v}, function(err, sample2s){
+				console.log(v);
+				fn(true);
+		});
+}, 'my Error');
+
+new Sample({name: 111}).save(function(err){
+		if(err){
 				console.log(err);
-		console.log('save');
+		}else{
+				console.log('save');
+		}
 })
 

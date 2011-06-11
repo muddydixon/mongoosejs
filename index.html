@@ -3,88 +3,20 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Mongoose - デベロッパーズガイド 日本語訳</title>
-		<style>
-			* {
-			  padding: 0;
-			  margin: 0;
-			  text-shadow: 0 2px 5px #AAA;
-			  color: #333;
-			  list-style: none;
-			}
-			a {
-			  color: #046;
-			}
-			div#side {
-			  position: fixed;
-			  top: 0px;
-			  left: 0px;
-			  width: 300px;
-			  height: 100%;
-			  padding: 5px 10px;
-			}
-			div#side h2 {
-			  font-size: 1.4em;
-			}
-			div#license p {
-			  width: 200px;
-			  font-size: 0.8em;
-			}
-			div#content-wrap {
-			  position: relative;
-			  top: 0px;
-			  left: 300px;
-			  width: 600px;
-			  padding: 5px 0 0 20px ;
-			}
-			section {
-			  padding: 10px;
-			  margin: 10px 0 0 0;
-			  border: 1px solid #CCC;
-			  border-radius: 10px;
-			  -moz-border-radius: 10px;
-			  -webkit-border-radius: 10px;
-			}
-			section h2 {
-			  border-bottom: 2px solid #AAA;
-			  margin-bottom: 10px;
-			}
-			section ul {
-			  margin: 5px 15px;
-			  font-size: 0.9em;
-			}
-			section ul li {
-			  list-style: circle;
-			}
-
-			code {
-			  color: #633;
-			}
-			pre {
-			  border: 1px solid #CCC;
-			  border-radius: 5px;
-			  padding: 10px;
-			  margin: 5px 0;
-			  background: #333;
-			  box-shadow: inset 0 0 5px #FF0;
-			  color: #FFF;
-			}
-			pre code {
-			  color: #FFF;
-			}
-		</style>
+		<link href="./style.css" media="screen" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="wrap">
 			<div id="side">
 				<header>
-					<h1>Mongoose - Developers Guide</h1>
+					<h1><a href="./index.html">Mongoose - Developers Guide</a></h1>
 					<h2>Mongoose - デベロッパーズガイド 日本語訳</h2>
 				</header>
 				<nav>
 					<ul>
 						<li><a href="#api">API</a></li>
 						<li><a href="./model-definition.html">Model Definition</a></li>
-						<li><a href="./embedded-document.html">Embedded Document</a></li>
+						<li><a href="./embedded-documents.html">Embedded Documents</a></li>
 						<li><a href="./middleware.html">Middleware</a></li>
 						<li><a href="./defaults.html">Defaults</a></li>
 						<li><a href="./indexes.html">Indexes</a></li>
@@ -97,6 +29,14 @@
 					<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/2.1/jp/80x15.png" /></a>
 					<p>このページは <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/">Creative Commons 表示 - 非営利 - 継承 2.1 日本 License</a> にもとづいて公開されています。</p>
 				</div>
+				<section>
+					<h2>このドキュメントについて</h2>
+					<p>本ドキュメントは、 Node.JS の <a href="http://www.mongodb.org/">MongoDB</a> ORM-like な機能を提供するユーティリティライブラリである
+						<a href="https://github.com/LearnBoost/mongoose">Mongoose</a> のマニュアルを翻訳したものです。</p>
+					<p>誤り等ございましたら、 <a href="http://twitter.com/#!/muddydixon">@muddydixon</a> までご連絡ください</p>
+					<h3>オリジナルコピーライト</h3>
+					<p>Mongoose by gradebook LearnBoost Labs. Released under the MIT license - Copyright LearnBoost 2011</p>
+				</section>
 			</div>
 			<div id="content-wrap">
 				<div id="content">

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+	<head>
+		<meta charset="UTF-8">
+		<title>Mongoose - デベロッパーズガイド 日本語訳</title>
+		<link href="./style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="side">
+				<header>
+					<h1><a href="./index.html">Mongoose - Developers Guide</a></h1>
+					<h2>Mongoose - デベロッパーズガイド 日本語訳</h2>
+				</header>
+				<nav>
+					<ul>
+						<li><a href="#api">API</a></li>
+						<li><a href="./model-definition.html">Model Definition</a></li>
+						<li><a href="./embedded-documents.html">Embedded Documents</a></li>
+						<li><a href="./middleware.html">Middleware</a></li>
+						<li><a href="./defaults.html">Defaults</a></li>
+						<li><a href="./indexes.html">Indexes</a></li>
+						<li><a href="./validation.html">Validation</a></li>
+						<li><a href="./virtuals.html">Virtulas</a></li>
+						<li><a href="./getters-setters.html">Getters / Setters</a></li>
+					</ul>
+				</nav>
+				<div id="license"> 
+					<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/2.1/jp/80x15.png" /></a>
+					<p>このページは <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/">Creative Commons 表示 - 非営利 - 継承 2.1 日本 License</a> にもとづいて公開されています。</p>
+				</div>
+				<section>
+					<h2>このドキュメントについて</h2>
+					<p>本ドキュメントは、 Node.JS の <a href="http://www.mongodb.org/">MongoDB</a> ORM-like な機能を提供するユーティリティライブラリである
+						<a href="https://github.com/LearnBoost/mongoose">Mongoose</a> のマニュアルを翻訳したものです。</p>
+					<p>誤り等ございましたら、 <a href="http://twitter.com/#!/muddydixon">@muddydixon</a> までご連絡ください</p>
+					<h3>オリジナルコピーライト</h3>
+					<p>Mongoose by gradebook LearnBoost Labs. Released under the MIT license - Copyright LearnBoost 2011</p>
+				</section>
+			</div>
+			<div id="content-wrap">
+				<div id="content">
+					<article>
+						<h1>Virtual 属性</h1> 
+						<section>
+							<p>Mongoose は仮想 (virtual) 属性をサポートしています。 Virtual 属性とは、あったら便利でいいけれど、 mongodb に永続化していない属性です。</p>
+ 
+							<p>例が分かりやすいでしょう。</p> 
+						</section>
+						<section>
+							<h2>Example</h2> 
+
+							<p>次のようなスキーマを考えます。</p>
+ 
+<pre><code>var PersonSchema = new Schema({
+    name: {
+        first: String
+      , last: String
+    }
+});
+ 
+var Person = mongoose.model('Person', PersonSchema);
+ 
+var theSituation = new Person({name: { first: 'Michael', last: 'Sorrentino' }});</code></pre> 
+ 
+							<p> <code>theSituation</code> のフルネームを書きたいとしましょう。あなたはこう書くことでしょう。
+								console.log( theSituation.name.first + ' ' + theSituation.name.last );</p> 
+ 
+							<p>こういう時に、次のように書く <code>name.full</code> という virtual 属性を定義しておくと便利です。</p>
+ 
+<pre><code>console.log( theSituation.name.full ); </code></pre> 
+ 
+							<p>これと行うために、 <code>Person</code> Schema で virtual 属性を定義することができます。</p>
+ 
+<pre><code>PersonSchema.virtual('name.full')
+  .get( function () {
+    return this.name.first + this.name.last;
+  });</code></pre> 
+ 
+							<p>そうすると、以下のコードを通して <code>name.full</code> を得ることができます。</p>
+ 
+<pre><code>theSituation.name.full;</code></pre> 
+ 
+							<p>実装は、 getter 関数を呼び出すだけで終わりです。</p>
+ 
+<pre><code>function () {
+  return this.name.first + this.name.last;
+}</code></pre> 
+ 
+							<p>これで目的を達成できます。</p>
+ 
+							<p><code>this.name.full</code> をせっとすることによって <code>this.name.first</code> と <code>this.name.last</code> をセットすることが出来ればもっと良いですよね。
+								例えば、次のように呼び出すだけで、 theSituation の <code>name.first</code> と <code>name.last</code> を 'The' と 'Situaion' にそれぞれ変更したいでよね。</p>
+ 
+<pre><code>theSituation.set('name.full', 'The Situation');</code></pre> 
+ 
+							<p>Mongoose はこれもまた、 virtual 属性の setter によってサポートしています。
+								virtual 属性の setter はこうして定義できます。</p>
+ 
+<pre><code>PersonSchema.virtual('name.full')
+  .get( function () {
+    return this.name.first + this.name.last;
+  })
+  .set( function (setFullNameTo) {
+    var split = setFullNameTo.split(' ')
+      , firstName = split[0], lastName = split[1];
+    this.set('name.first', firstName);
+    this.set('name.last', lastName);
+  });</code></pre> 
+ 
+							<p>あとは、呼び出すだけです。</p> 
+ 
+<pre><code>theSituation.set('name.full', 'The Situation');</code></pre> 
+ 
+							<p>document を保存すれば、 <code>name.first</code> と <code>name.last</code> は mongodb で変更されます。しかし、 mongodb document は、 <code>name.full</code> の key と value をデータベースに保存する必要はありません。</p>
+ 
+<pre><code>theSituation.save( function (err) {
+  Person.findById(theSituation._id, function (err, found) {
+    console.log(found.name.first); // 'The'
+    console.log(found.name.last);  // 'Situation'
+  });
+});</code></pre> 
+ 
+							<p>属性としては取得もセットもしたいけれど、 mongodb に永続化したくない場合、 virtual 属性があなたの望む Mongoose の特徴です。</p>
+ 						</section>
+					</article>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

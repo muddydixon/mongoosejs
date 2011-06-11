@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+	<head>
+		<meta charset="UTF-8">
+		<title>Mongoose - デベロッパーズガイド 日本語訳</title>
+		<link href="./style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="side">
+				<header>
+					<h1><a href="./index.html">Mongoose - Developers Guide</a></h1>
+					<h2>Mongoose - デベロッパーズガイド 日本語訳</h2>
+				</header>
+				<nav>
+					<ul>
+						<li><a href="#api">API</a></li>
+						<li><a href="./model-definition.html">Model Definition</a></li>
+						<li><a href="./embedded-documents.html">Embedded Documents</a></li>
+						<li><a href="./middleware.html">Middleware</a></li>
+						<li><a href="./defaults.html">Defaults</a></li>
+						<li><a href="./indexes.html">Indexes</a></li>
+						<li><a href="./validation.html">Validation</a></li>
+						<li><a href="./virtuals.html">Virtulas</a></li>
+						<li><a href="./getters-setters.html">Getters / Setters</a></li>
+					</ul>
+				</nav>
+				<div id="license"> 
+					<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/2.1/jp/80x15.png" /></a>
+					<p>このページは <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/">Creative Commons 表示 - 非営利 - 継承 2.1 日本 License</a> にもとづいて公開されています。</p>
+				</div>
+				<section>
+					<h2>このドキュメントについて</h2>
+					<p>本ドキュメントは、 Node.JS の <a href="http://www.mongodb.org/">MongoDB</a> ORM-like な機能を提供するユーティリティライブラリである
+						<a href="https://github.com/LearnBoost/mongoose">Mongoose</a> のマニュアルを翻訳したものです。</p>
+					<p>誤り等ございましたら、 <a href="http://twitter.com/#!/muddydixon">@muddydixon</a> までご連絡ください</p>
+					<h3>オリジナルコピーライト</h3>
+					<p>Mongoose by gradebook LearnBoost Labs. Released under the MIT license - Copyright LearnBoost 2011</p>
+				</section>
+			</div>
+			<div id="content-wrap">
+				<div id="content">
+					<article>
+						<h1>Getters and Setters</h1> 
+						<section>
+							<p>document のもとの key と value で定義される属性を取得したりセットする挙動を変更することを可能にするのが、 getter と setter です。</p>
+						</section>
+						<section>
+							<h2>Setters</h2> 
+ 
+							<p>もとの mongodb の document を取得し、 (Objectの ※訳者追加) 実際の key にひもづく value としてセットする前に、 mongoose document のデータを変更するのが setter です。</p>
+ 
+							<p>Webサイトでユーザ登録を実装していると想定してください。 ユーザは email と password を入力し、これらを mongodb に保存します。
+								1つの email 複数のアカウントに紐づくことを避けるために、 email は小文字に正規化することを期待した文字列だとします。
+								例えば、 avenue@q.com が次のような2つのアカウントに紐付けられないようにしたいのです。 avenue@q.com and AvEnUe@Q.CoM.</p> 
+ 
+							<p>Mongoose setter を使えば、 email を容易に小文字に正規化することができます。
+								<code>Schema</code> の中で、次のようなスニペットで setter (そして、 getter も)定義されます。</p> 
+ 
+<pre><code>function toLower (v) {
+  return v.toLowerCase();
+}
+ 
+var UserSchema = new Schema({
+  email: { type: String, set: toLower } 
+});
+ 
+var User = mongoose.model('User', UserSchema);
+var user = new User({email: 'AVENUE@Q.COM'});
+ 
+console.log(user.email); // 'avenue@q.com'</code></pre> 
+ 
+							<p>上述したように、 setter によって、もとの mongodb document を取得する前に、データを変形することが可能で、実際の key に対する値としてセットされています。</p> 
+
+						</section>
+						<section>
+							<h2>Getters</h2> 
+ 
+							<p>Getter を使うことで、もとの mongodb document から、確認できる値へと移動するように、データの表現を変更することが可能です。</p>
+ 
+							<p>クレジットカードの番号を保存していて、 mongooser のユーザには最後の4桁以外は見せたくないとします。
+								次のように getter を定義するだけで可能になります。ただ、 <code>Schema</code> の中で、 getter を定義してください。</p>
+ 
+<pre><code>function obfuscate (cc) {
+  return '****-****-****-' + cc.slice(cc.length-4, cc.length);
+}
+ 
+var AccountSchema = new Schema({
+  creditCardNumber: { type: String, get: obfuscate }
+});
+ 
+var Account = mongoose.model('Account', AccountSchema);
+ 
+Account.findById( someId, function (err, found) {
+  console.log(found.creditCardNumber); // '****-****-****-1234'
+});</code></pre> 
+
+						</section>
+						<section>
+							<h2>まとめ</h2> 
+ 
+							<p>setter は、生のデータを修正することを意図したものです。 getter は生のデータをユーザが見ることを期待したものに変更する (生のデータレベルでは変更しません) ことを意図したものです。
+								これらはどちらも <code>Schema</code> 定義の中で定義されます。</p>
+						</section>
+					</article>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

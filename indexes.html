@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+	<head>
+		<meta charset="UTF-8">
+		<title>Mongoose - デベロッパーズガイド 日本語訳</title>
+		<link href="./style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="side">
+				<header>
+					<h1><a href="./index.html">Mongoose - Developers Guide</a></h1>
+					<h2>Mongoose - デベロッパーズガイド 日本語訳</h2>
+				</header>
+				<nav>
+					<ul>
+						<li><a href="#api">API</a></li>
+						<li><a href="./model-definition.html">Model Definition</a></li>
+						<li><a href="./embedded-documents.html">Embedded Documents</a></li>
+						<li><a href="./middleware.html">Middleware</a></li>
+						<li><a href="./defaults.html">Defaults</a></li>
+						<li><a href="./indexes.html">Indexes</a></li>
+						<li><a href="./validation.html">Validation</a></li>
+						<li><a href="./virtuals.html">Virtulas</a></li>
+						<li><a href="./getters-setters.html">Getters / Setters</a></li>
+					</ul>
+				</nav>
+				<div id="license"> 
+					<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/2.1/jp/80x15.png" /></a>
+					<p>このページは <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/">Creative Commons 表示 - 非営利 - 継承 2.1 日本 License</a> にもとづいて公開されています。</p>
+				</div>
+				<section>
+					<h2>このドキュメントについて</h2>
+					<p>本ドキュメントは、 Node.JS の <a href="http://www.mongodb.org/">MongoDB</a> ORM-like な機能を提供するユーティリティライブラリである
+						<a href="https://github.com/LearnBoost/mongoose">Mongoose</a> のマニュアルを翻訳したものです。</p>
+					<p>誤り等ございましたら、 <a href="http://twitter.com/#!/muddydixon">@muddydixon</a> までご連絡ください</p>
+					<h3>オリジナルコピーライト</h3>
+					<p>Mongoose by gradebook LearnBoost Labs. Released under the MIT license - Copyright LearnBoost 2011</p>
+				</section>
+			</div>
+			<div id="content-wrap">
+				<div id="content">
+					<article>
+						<h1>Indexes</h1> 
+						<section>
+							<p>index は、指定した connection / database に対して、モデルがコンパイルされるごとに、 <code>ensureIndex</code> を利用して定義されます。
+								アプリのライフタイムのあいだに一度、 index が確保されることを意味します。</p>
+						</section>
+						<section>
+							<h2>Definition</h2> 
+ 
+							<p>通常の index</p> 
+ 
+<pre><code>var User = new Schema({
+    name: { type: String, index: true }
+})</code></pre> 
+ 
+							<p>ユニーク index</p> 
+ 
+<pre><code>var User = new Schema({
+    name: { type: String, unique: true }
+})
+ 
+// or 
+ 
+var User = new Schema({
+    name: { type: String, index: { unique: true } }
+})</code></pre> 
+ 
+							<p><code>Schema</code> で定義される複合 index</p> 
+ 
+<pre><code>User.index({ first: 1, last: -1 })</code></pre> 
+
+						</section>
+					</article>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

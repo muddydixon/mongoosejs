@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+	<head>
+		<meta charset="UTF-8">
+		<title>Mongoose - デベロッパーズガイド 日本語訳</title>
+		<link href="./style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="side">
+				<header>
+					<h1><a href="./index.html">Mongoose - Developers Guide</a></h1>
+					<h2>Mongoose - デベロッパーズガイド 日本語訳</h2>
+				</header>
+				<nav>
+					<ul>
+						<li><a href="#api">API</a></li>
+						<li><a href="./model-definition.html">Model Definition</a></li>
+						<li><a href="./embedded-document.html">Embedded Document</a></li>
+						<li><a href="./middleware.html">Middleware</a></li>
+						<li><a href="./defaults.html">Defaults</a></li>
+						<li><a href="./indexes.html">Indexes</a></li>
+						<li><a href="./validation.html">Validation</a></li>
+						<li><a href="./virtuals.html">Virtulas</a></li>
+						<li><a href="./getters-setters.html">Getters / Setters</a></li>
+					</ul>
+				</nav>
+				<div id="license"> 
+					<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/2.1/jp/80x15.png" /></a>
+					<p>このページは <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/">Creative Commons 表示 - 非営利 - 継承 2.1 日本 License</a> にもとづいて公開されています。</p>
+				</div>
+				<section>
+					<h2>このドキュメントについて</h2>
+					<p>本ドキュメントは、 Node.JS の <a href="http://www.mongodb.org/">MongoDB</a> ORM-like な機能を提供するユーティリティライブラリである
+						<a href="https://github.com/LearnBoost/mongoose">Mongoose</a> のマニュアルを翻訳したものです。</p>
+					<p>誤り等ございましたら、 <a href="http://twitter.com/#!/muddydixon">@muddydixon</a> までご連絡ください</p>
+					<h3>オリジナルコピーライト</h3>
+					<p>Mongoose by gradebook LearnBoost Labs. Released under the MIT license - Copyright LearnBoost 2011</p>
+				</section>
+			</div>
+			<div id="content-wrap">
+				<div id="content">
+					<article>
+						<h1>Middleware</h1> 
+						<section>
+							
+							<p>Middleware は Schema レベルで定義され、<code>init</code> (MongoDB のデータが document として初期化されたとき)、
+								<code>save</code> (document または embedded document が保存されたとき) 、 <code>remove</code> のメソッドが、 document のインスタンスによって呼ばれたときに適用されます。</p> 
+ 
+							<p>2つのタイプの middleware があり、定義した関数のシグニチャで決定されます (例えば、関数が受容するパラメタなどです)</p>
+ 
+							<ul>
+								<li><h2>Serial</h2>
+									<p>Serial middleware は次のように定義します。</p>
+									<pre><code>.pre(method, function (next) {
+  // ...
+})</code></pre>
+									<p>それぞれの middleware が <code>next</code> を呼ぶときに、次々と実行されます。</p>
+								</li>
+								<li><h2>Parallel</h2>
+									<p>Parallel middleware はより肌理の細かいフローコントロールを提供し、次のように定義します。</p>
+<pre><code>.pre(method, function (next, done) {
+  // ...
+		})</code></pre>
+									<p>Parallel middleware は、即座に <code>next()</code> を実行しますが、最後の引数はすべての parallel middleware が done() を呼んだ時に呼び出されます。</p>
+								</li>
+							</ul>
+						</section>
+						<section>
+							<h2>利用ケース</h2> 
+ 
+							<p>Middleware はこういうときに利用されます。</p> 
+ 
+							<ul>
+								<li>複雑な validation</li>
+								<li>document が削除されたときに依存する document を削除する (例えば、 user の削除で彼の blogpost のすべてを削除する、など)</li>
+								<li>非同期な defaults</li>
+								<li>特別なアクショントリガのような非同期タスク 例
+									<ul>
+										<li>custom event トリガー</li>
+										<li>通知の生成</li>
+										<li>Email</li>
+									</ul>
+								</li>
+							</ul> 
+ 
+							<p>そして、他の多くのことが考えられます。原始的なモデルロジックや無用な非同期コードの入れ子ブロックに対して特に利用されます。</p>
+						</section>
+						<section>
+							<h2>Error の扱い</h2>
+							
+							<p> middleware が <code>next</code> や <code>done</code> を <code>Error</code> インスタンスを伴って呼び出したならば、
+								フローは中断され、 error は引数として渡された関数に渡されます。</p>
+ 
+							<p>例えば</p> 
+ 
+<pre><code>schema.pre('save', function (next) {
+    // something goes wrong
+    next(new Error('something went wrong'));
+});
+ 
+// later...
+ 
+myModel.save(function (err) {
+  // err can come from a middleware
+});</code></pre>
+						</section>
+					</article>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

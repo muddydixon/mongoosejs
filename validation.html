@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+	<head>
+		<meta charset="UTF-8">
+		<title>Mongoose - デベロッパーズガイド 日本語訳</title>
+		<link href="./style.css" media="screen" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="side">
+				<header>
+					<h1><a href="./index.html">Mongoose - Developers Guide</a></h1>
+					<h2>Mongoose - デベロッパーズガイド 日本語訳</h2>
+				</header>
+				<nav>
+					<ul>
+						<li><a href="#api">API</a></li>
+						<li><a href="./model-definition.html">Model Definition</a></li>
+						<li><a href="./embedded-documents.html">Embedded Documents</a></li>
+						<li><a href="./middleware.html">Middleware</a></li>
+						<li><a href="./defaults.html">Defaults</a></li>
+						<li><a href="./indexes.html">Indexes</a></li>
+						<li><a href="./validation.html">Validation</a></li>
+						<li><a href="./virtuals.html">Virtulas</a></li>
+						<li><a href="./getters-setters.html">Getters / Setters</a></li>
+					</ul>
+				</nav>
+				<div id="license"> 
+					<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/2.1/jp/80x15.png" /></a>
+					<p>このページは <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.1/jp/">Creative Commons 表示 - 非営利 - 継承 2.1 日本 License</a> にもとづいて公開されています。</p>
+				</div>
+				<section>
+					<h2>このドキュメントについて</h2>
+					<p>本ドキュメントは、 Node.JS の <a href="http://www.mongodb.org/">MongoDB</a> ORM-like な機能を提供するユーティリティライブラリである
+						<a href="https://github.com/LearnBoost/mongoose">Mongoose</a> のマニュアルを翻訳したものです。</p>
+					<p>誤り等ございましたら、 <a href="http://twitter.com/#!/muddydixon">@muddydixon</a> までご連絡ください</p>
+					<h3>オリジナルコピーライト</h3>
+					<p>Mongoose by gradebook LearnBoost Labs. Released under the MIT license - Copyright LearnBoost 2011</p>
+				</section>
+			</div>
+			<div id="content-wrap">
+				<div id="content">
+					<article>
+						<h1>モデルでの Validation</h1> 
+						<section>
+							<p>Validation の構文の定義に入る前に、次のルールを心に留めてください。</p>
+
+							<ul>
+								<li>
+									<p>Validation は、 <code>Schema</code> 内で定義されます。</p>
+								</li>
+								<li>
+									<p>Validation は document が保存されるときに実施され、 default が適用されたあとになります。</p>
+								</li>
+								<li>
+									<p>Mongoose は複合的な error メッセージの構築をケアしていません。タイプ確認のエラーがでます。
+										例えば、 <code>"min"</code> は、number が最小値にマッチしていないときに起こるエラーです。
+										path と value が起こす error は、 <code>ValidationError</code> オブジェクトでアクセスされます。
+									</p>
+								</li>
+								<li>
+									<p>Validation は、 middleware の中の一部です。</p>
+								</li>
+								<li>
+									<p>Validation は <code>Model#save</code> を呼んだ時、 embedded document の validation が実行され、非同期的な再帰です。
+										もし、 error が生じた場合は、 <code>Model#save</code> の callback が error を受けます。</p>
+								</li>
+							</ul> 
+						</section>
+						<section>
+							<h2>シンプルな validation</h2> 
+ 
+							<p>シンプルな validation は、 <code>validate</code> 関数と <code>SchemaType</code> に対する error タイプを宣言することで定義されます。
+								(schema についてより知るためには <a href="./model-definition.html">model definition</a> の章を御覧ください。)</p>
+ 
+<pre><code>function validator (v) {
+  return v.length &gt; 5;
+};
+ 
+new Schema({
+    name: { type: String, validate: [validator, 'my error type'] }
+})</code></pre> 
+ 
+							<p>この構文の体裁が気に入らないのであれば、タイプを定義することもできます。</p>
+ 
+<pre><code>var schema = new Schema({
+    name: String
+})</code></pre> 
+ 
+							<p>その後、 validator を定義します。</p> 
+ 
+<pre><code>schema.path('name').validate(function (v) {
+  return v.length &gt; 5;
+}, 'my error type'); </code></pre> 
+						</section>
+						<section>
+							<h2>正規表現</h2> 
+ 
+							<p>値を正規表現で検証したい場合は下記のようにします</p>
+ 
+<pre><code>var schema = new Schema({
+    name: { type: String, validate: /[a-z]/ }
+});</code></pre> 
+
+						</section>
+						<section>
+							<h2>非同期 validation</h2> 
+ 
+							<p>validator 関数に次のように二つの引数を渡します。</p>
+ 
+<pre><code>schema.path('name').validate(function (v, fn) {
+  // my logic
+}, 'my error type'); </code></pre> 
+ 
+							<p>その後に、 <code>fn</code> 関数を validator が通過したか否か舎を示す <code>true</code> または <code>false</code> を引数として呼びだします。
+								これにより、 validator から他のモデルを呼び出したり、非同期にデータをリクエストしたりすることができます。</p>
+						</section>
+						<section>
+							<h2>埋め込み validator</h2> 
+ 
+							<ul>
+								<li>
+									<p>For Strings:</p>
+									<ul>
+										<li>
+											<p><code>enum</code>: takes a list of allowed values. Example:</p>
+											<p>var Post = new Schema({
+												type: { type: String, enum: ['page', 'post', 'link'] }
+												})</p>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<p>For Numbers:</p>
+									<ul>
+										<li>
+											<p><code>min</code>: minimum value</p>
+											<p>var Person = new Schema({
+												age: { type: Number, min: 5 }
+												})</p>
+										</li>
+										<li>
+											<p><code>max</code>: maxmimum value</p>
+											<p>var Person = new Schema({
+												age: { type: Number, max: 100 }
+												})</p>
+										</li>
+									</ul>
+								</li>
+							</ul> 
+						</section>
+					</article>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
